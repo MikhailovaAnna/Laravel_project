@@ -1,0 +1,117 @@
+\subsection*{Рабработка программного обеспечения для поэтапного вывода части большой таблицы БД в W\+E\+B-\/интерфейсе пользователя}
+
+ПО предназначено для отображения таблицы БД, информация из которой отображается поэтапно, по запросу пользователя следующего или предыдущего блока данных, или блока, начинающегося с определенной даты, создан поиск данных в БД по дате, сообщению и номеру телефона.
+
+Разработка велась с использованием C\+MF \hyperlink{namespaceLaravel}{Laravel}, на языках программирования P\+HP 7.\+3, H\+T\+ML, C\+SS.
+
+Таблица содержит столбцы\+: \char`\"{}Номер телефона\char`\"{}, \char`\"{}Дата\char`\"{}, \char`\"{}Время\char`\"{}, \char`\"{}Текст сообщения\char`\"{}.
+
+\subsection*{Инструкция}
+
+
+\begin{DoxyItemize}
+\item Установка Composer
+\end{DoxyItemize}
+
+Composer неободим для предоставления средств по управлению зависимостями в P\+H\+P-\/приложении. \begin{DoxyVerb}sudo apt install composer
+\end{DoxyVerb}
+
+
+
+\begin{DoxyItemize}
+\item Установка \hyperlink{namespaceLaravel}{Laravel} с помощью Composer
+\end{DoxyItemize}
+
+
+\begin{DoxyCode}
+composer global require laravel/installer
+\end{DoxyCode}
+
+
+Изменяем переменную P\+A\+TH\+: \begin{DoxyVerb}export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+\end{DoxyVerb}
+
+
+
+\begin{DoxyItemize}
+\item Создание проекта \hyperlink{namespaceLaravel}{Laravel}\+: 
+\begin{DoxyCode}
+laravel new new\_laravel
+\end{DoxyCode}
+ где new\+\_\+laravel -\/ это имя проекта.
+\end{DoxyItemize}
+
+Можно проверить работу проекта, запустив сервер командой\+: \begin{DoxyVerb}php artisan serve
+\end{DoxyVerb}
+
+
+Если увидела стартовую страницу \hyperlink{namespaceLaravel}{Laravel} -\/ все в порядке!
+
+
+\begin{DoxyItemize}
+\item Установка Postgre\+S\+QL 
+\begin{DoxyCode}
+sudo apt-get update
+sudo apt-get install postgresql-10.4
+\end{DoxyCode}
+
+\item Создание базы данных 
+\begin{DoxyCode}
+sudo -u postgres psql -c "CREATE DATABASE db;"
+\end{DoxyCode}
+ где db -\/ название базы данных.
+\end{DoxyItemize}
+
+Запустить и отключить сервер Postgre\+S\+QL можно командами\+: \begin{DoxyVerb}sudo service postgresql start
+sudo service postgresql stop
+\end{DoxyVerb}
+
+
+
+\begin{DoxyItemize}
+\item Подключение проекта к БД
+\end{DoxyItemize}
+
+В файле проекта .env заменяются следующие строчки\+: \begin{DoxyVerb}DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=ann
+DB_USERNAME=ann
+DB_PASSWORD=789
+\end{DoxyVerb}
+
+
+D\+B\+\_\+\+D\+A\+T\+A\+B\+A\+SE, D\+B\+\_\+\+U\+S\+E\+R\+N\+A\+ME, D\+B\+\_\+\+P\+A\+S\+S\+W\+O\+RD меняем в зависимости от созданных нами БД, пользователя и пароля.
+
+В файле config/database.\+php заменяем\+: \begin{DoxyVerb}'default' => env('DB_CONNECTION', 'pgsql'),
+\end{DoxyVerb}
+
+
+Перезагружаем сервер БД, и наш проект должен быть подключен к БД!
+
+
+\begin{DoxyItemize}
+\item Генерация тестовых данных
+\end{DoxyItemize}
+
+С помощью миграций создаем таблицу с данными, в моем случае -\/ books. \begin{DoxyVerb}php artisan make:migration books
+\end{DoxyVerb}
+
+
+В папке database/migrations должна появится соответствующая миграция. В ней заменяем существующую функцию up() на\+: \begin{DoxyVerb}public function up()
+    {
+        Schema::create('books', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('Phone');
+            $table->text('Text');
+            $table->date('Date');
+            $table->timestamps();
+        });
+    }
+\end{DoxyVerb}
+
+
+В папке database/factories создаем файл Book\+Model\+Factory.\+php, с содержанием\+: \begin{DoxyVerb}<?php
+
+/**\end{DoxyVerb}
+ 
